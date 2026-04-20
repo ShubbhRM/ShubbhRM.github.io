@@ -53,19 +53,28 @@
     gtag('config', 'G-C7X07TDM7X');
   </script>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:     #0c0c0c;
-      --text:   #f0ede8;
-      --muted:  #6b6b6b;
-      --muted2: #9a9a9a;
-      --accent: #c8ff00;
-      --accent2: #ff3cac;
-      --border: rgba(255,255,255,0.06);
+      --bg:       #080808;
+      --bg2:      #0d0d0d;
+      --card:     #101010;
+      --card2:    #151515;
+      --text:     #F0EDE8;
+      --muted:    #3f3f3f;
+      --muted2:   #787878;
+      --accent:   #00E5FF;
+      --accent2:  #9B59FF;
+      --border:   rgba(255,255,255,0.07);
+      --glow:     rgba(0,229,255,0.12);
+      --fd:       'Space Grotesk', sans-serif;
+      --fm:       'JetBrains Mono', monospace;
+      --fb:       'Inter', sans-serif;
     }
 
     html { scroll-behavior: smooth; }
@@ -73,1027 +82,1175 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: var(--fb);
       overflow-x: hidden;
       cursor: none;
     }
 
-    /* ── Custom cursor ─────────────────────────── */
-    .cursor {
+    /* ── Atmospheric orbs ───────────────────────────────── */
+    .orb {
       position: fixed;
-      width: 10px; height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(100px);
+    }
+    .orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+      top: -280px; left: -180px;
+    }
+    .orb-2 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(155,89,255,0.05) 0%, transparent 70%);
+      bottom: -180px; right: -120px;
+    }
+
+    /* ── Neural canvas ──────────────────────────────────── */
+    #neural-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Noise texture ──────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.35;
+    }
+
+    /* ── Custom cursor ──────────────────────────────────── */
+    .cursor-dot {
+      position: fixed;
+      width: 6px; height: 6px;
       background: var(--accent);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
       transform: translate(-50%, -50%);
-      transition: width 0.2s, height 0.2s, background 0.2s;
-      mix-blend-mode: difference;
+      mix-blend-mode: screen;
     }
-
     .cursor-ring {
       position: fixed;
-      width: 36px; height: 36px;
-      border: 1.5px solid rgba(200,255,0,0.5);
+      width: 30px; height: 30px;
+      border: 1px solid rgba(0,229,255,0.45);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9998;
       transform: translate(-50%, -50%);
-      transition: all 0.12s ease;
-      mix-blend-mode: difference;
+      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+    }
+    .cursor-ring.expanded {
+      width: 54px; height: 54px;
+      border-color: rgba(0,229,255,0.75);
     }
 
-    body:has(a:hover) .cursor,
-    body:has(button:hover) .cursor { width: 18px; height: 18px; }
-    body:has(a:hover) .cursor-ring,
-    body:has(button:hover) .cursor-ring { width: 60px; height: 60px; border-color: rgba(200,255,0,0.8); }
-
-    /* ── Noise texture overlay ─────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.4;
-    }
-
-    /* ── Nav ───────────────────────────────────── */
+    /* ── Nav ────────────────────────────────────────────── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      padding: 24px 48px;
+      padding: 28px 52px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      mix-blend-mode: difference;
     }
-
     .nav-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
+      font-family: var(--fm);
+      font-weight: 700;
+      font-size: 0.82rem;
       color: var(--text);
       text-decoration: none;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      opacity: 0.9;
+      position: relative; z-index: 2;
     }
-
-    .nav-links { display: flex; gap: 40px; }
+    .nav-links { display: flex; gap: 40px; align-items: center; position: relative; z-index: 2; }
     .nav-links a {
-      font-size: 0.78rem;
-      color: var(--text);
+      font-family: var(--fm);
+      font-size: 0.68rem;
+      color: var(--muted2);
       text-decoration: none;
-      font-weight: 500;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      opacity: 0.5;
-      transition: opacity 0.2s;
+      transition: color 0.2s;
     }
-    .nav-links a:hover { opacity: 1; }
+    .nav-links a:hover { color: var(--accent); }
 
-    /* ── Hero ──────────────────────────────────── */
+    /* ── Hero ───────────────────────────────────────────── */
     .hero {
       position: relative;
       z-index: 2;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
-      padding: 0 48px 64px;
-      overflow: hidden;
-    }
-
-    /* Big background number */
-    .hero-bg-num {
-      position: absolute;
-      top: 50%;
-      right: -40px;
-      transform: translateY(-50%);
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(280px, 35vw, 480px);
-      line-height: 1;
-      color: transparent;
-      -webkit-text-stroke: 1px rgba(255,255,255,0.04);
-      pointer-events: none;
-      user-select: none;
-      letter-spacing: -0.05em;
+      padding: 0 52px 60px;
     }
 
     .hero-top {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: auto;
-      padding-top: 140px;
+      align-items: flex-start;
+      padding-top: 136px;
     }
 
-    .hero-tag {
-      font-size: 0.7rem;
+    .hero-sys {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .sys-edu {
+      font-family: var(--fm);
+      font-size: 0.62rem;
       color: var(--muted2);
-      letter-spacing: 0.15em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      border: 1px solid var(--border);
-      padding: 6px 14px;
-      border-radius: 100px;
+    }
+    .sys-proc {
+      font-family: var(--fm);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      transition: opacity 0.4s ease;
     }
 
-    .hero-status {
+    .hero-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.7rem;
+      gap: 9px;
+      font-family: var(--fm);
+      font-size: 0.66rem;
       color: var(--muted2);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.025);
+      backdrop-filter: blur(8px);
     }
-
     .status-dot {
       width: 7px; height: 7px;
       border-radius: 50%;
-      background: var(--accent);
-      animation: blink 2s infinite;
+      background: #00FF87;
+      box-shadow: 0 0 8px rgba(0,255,135,0.7);
+      animation: dot-pulse 2.2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0,255,135,0.7); }
+      50%       { opacity: 0.4; box-shadow: 0 0 3px rgba(0,255,135,0.2); }
     }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+    /* Hero name — fills vertical space */
+    .hero-name-wrap {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 4px;
     }
-
-    .hero-main { margin-top: auto; }
-
     .hero-name {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(72px, 10vw, 148px);
-      line-height: 0.92;
-      letter-spacing: -0.04em;
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: clamp(72px, 10vw, 150px);
+      line-height: 0.88;
+      letter-spacing: -0.045em;
       text-transform: uppercase;
-      margin-bottom: 40px;
+      user-select: none;
     }
-
-    .hero-name .line-2 {
-      display: block;
-      -webkit-text-stroke: 1.5px var(--text);
-      color: transparent;
-    }
-
-    .hero-name .accent-word {
-      color: var(--accent);
-      -webkit-text-stroke: 0;
-    }
+    .n-fill   { display: block; color: var(--text); }
+    .n-stroke { display: block; color: transparent; -webkit-text-stroke: 1.5px rgba(240,237,232,0.35); }
+    .n-accent { display: block; color: var(--accent); }
 
     .hero-bottom {
       display: flex;
-      align-items: flex-end;
       justify-content: space-between;
-      gap: 40px;
+      align-items: flex-end;
+      gap: 48px;
       flex-wrap: wrap;
+      margin-top: 40px;
     }
 
     .hero-desc {
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       color: var(--muted2);
-      line-height: 1.75;
-      max-width: 380px;
+      line-height: 1.85;
+      max-width: 360px;
     }
+    .hero-desc strong { color: var(--text); font-weight: 500; }
 
-    .hero-desc strong { color: var(--text); font-weight: 600; }
+    .hero-ctas { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
 
-    .hero-ctas {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    .btn-fill {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 28px;
-      border-radius: 100px;
-      background: var(--accent);
-      color: #0c0c0c;
-      font-weight: 700;
-      font-size: 0.82rem;
-      text-decoration: none;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-    }
-
-    .btn-fill:hover {
-      background: #fff;
-      transform: scale(1.04);
-    }
-
-    .btn-outline {
+    .btn-primary {
       display: inline-flex;
       align-items: center;
       gap: 10px;
       padding: 13px 28px;
-      border-radius: 100px;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: var(--text);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--fd);
       font-weight: 600;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       text-decoration: none;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
+      letter-spacing: 0.04em;
+      transition: all 0.25s ease;
+    }
+    .btn-primary:hover {
+      background: #fff;
+      box-shadow: 0 0 28px rgba(0,229,255,0.45);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--muted2);
+      font-family: var(--fd);
+      font-weight: 500;
+      font-size: 0.8rem;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: all 0.25s ease;
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.28);
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-2px);
     }
 
-    .btn-outline:hover {
-      border-color: var(--text);
-      background: rgba(255,255,255,0.05);
-    }
-
-    /* Scroll line */
-    .scroll-line {
+    /* Scroll indicator */
+    .scroll-hint {
       position: absolute;
-      bottom: 0;
-      left: 50%;
+      bottom: 0; left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
-
-    .scroll-line-bar {
-      width: 1px;
-      height: 60px;
+    .scroll-lbl {
+      font-family: var(--fm);
+      font-size: 0.52rem;
+      color: var(--muted);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      writing-mode: vertical-lr;
+    }
+    .scroll-bar {
+      width: 1px; height: 54px;
       background: linear-gradient(180deg, transparent, var(--muted));
-      animation: scrollDrop 2s ease-in-out infinite;
+      animation: s-drop 2.2s ease-in-out infinite;
     }
-
-    @keyframes scrollDrop {
+    @keyframes s-drop {
       0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
       50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
       100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
     }
 
-    /* ── Stats ticker ──────────────────────────── */
-    .stats-ticker {
-      position: relative;
-      z-index: 2;
+    /* ── Ticker ─────────────────────────────────────────── */
+    .ticker {
+      position: relative; z-index: 2;
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
+      height: 50px;
       overflow: hidden;
-      padding: 0;
-      height: 56px;
     }
-
     .ticker-track {
       display: flex;
       align-items: center;
       height: 100%;
-      animation: ticker 22s linear infinite;
-      white-space: nowrap;
+      animation: t-scroll 30s linear infinite;
       width: max-content;
+      white-space: nowrap;
     }
-
     .ticker-item {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 0 40px;
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
+      gap: 14px;
+      padding: 0 36px;
+      font-family: var(--fm);
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted2);
     }
-
-    .ticker-item strong {
-      color: var(--accent);
-      font-size: 0.85rem;
-      font-weight: 700;
-      font-family: 'Syne', sans-serif;
-    }
-
-    .ticker-sep {
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      background: var(--muted);
-      flex-shrink: 0;
-    }
-
-    @keyframes ticker {
+    .ticker-item b { color: var(--accent); font-weight: 700; }
+    .ticker-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+    @keyframes t-scroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
 
-    /* ── Layout wrapper ───────────────────────── */
-    .wrapper {
-      position: relative;
-      z-index: 2;
-      max-width: 1200px;
+    /* ── Section wrapper ────────────────────────────────── */
+    .wrap {
+      position: relative; z-index: 2;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 0 48px;
+      padding: 0 52px;
     }
 
-    /* ── Section label ────────────────────────── */
     .s-label {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 14px;
-      font-size: 0.68rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
+      gap: 12px;
+      font-family: var(--fm);
+      font-size: 0.6rem;
       color: var(--muted);
-      margin-bottom: 48px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      margin-bottom: 52px;
     }
-
     .s-label::before {
       content: '';
-      width: 32px; height: 1px;
+      width: 28px; height: 1px;
       background: var(--muted);
     }
 
-    /* ── Projects ─────────────────────────────── */
-    #projects { padding: 120px 0; }
+    /* ── Projects ───────────────────────────────────────── */
+    #projects { padding: 120px 0 100px; }
 
-    .projects-header {
+    .proj-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-bottom: 64px;
-      gap: 32px;
+      margin-bottom: 52px;
+      gap: 24px;
       flex-wrap: wrap;
     }
-
-    .projects-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(2.4rem, 5vw, 4rem);
-      letter-spacing: -0.04em;
+    .proj-title {
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+      letter-spacing: -0.045em;
       text-transform: uppercase;
       line-height: 1;
     }
-
-    .projects-title em {
-      font-style: normal;
-      -webkit-text-stroke: 1px var(--text);
-      color: transparent;
-    }
-
-    .projects-sub {
-      font-size: 0.875rem;
+    .proj-title em { font-style: normal; color: transparent; -webkit-text-stroke: 1px var(--text); }
+    .proj-sub {
+      font-size: 0.82rem;
       color: var(--muted2);
       line-height: 1.7;
-      max-width: 280px;
+      max-width: 240px;
       text-align: right;
     }
 
-    /* Project list */
-    .project-list { display: flex; flex-direction: column; }
-
-    .project-row {
+    /* ── Bento Grid ─────────────────────────────────────── */
+    .bento {
       display: grid;
-      grid-template-columns: 64px 1fr auto;
-      gap: 32px;
-      align-items: center;
-      padding: 28px 0;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 265px 215px auto;
+      gap: 13px;
     }
 
-    .project-row::before {
+    /* Card base */
+    .bcard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.35s, background 0.35s, transform 0.35s;
+    }
+    .bcard::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, rgba(200,255,0,0.04), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.4s ease;
+      background: radial-gradient(ellipse at 20% 20%, var(--glow), transparent 65%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .bcard:hover { border-color: rgba(0,229,255,0.22); background: var(--card2); transform: translateY(-2px); }
+    .bcard:hover::after { opacity: 1; }
+
+    /* Featured */
+    .bcard.feat {
+      grid-column: 1 / 3;
+      grid-row: 1 / 3;
+      padding: 34px;
+      background: #0b1420;
+      border-color: rgba(0,229,255,0.1);
+    }
+    .bcard.feat:hover { border-color: rgba(0,229,255,0.38); }
+    .bcard.feat::after {
+      background: radial-gradient(ellipse at 15% 15%, rgba(0,229,255,0.1), transparent 60%);
     }
 
-    .project-row:hover::before { transform: translateX(0); }
-    .project-row:hover { padding-left: 12px; }
-
-    .project-num {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-weight: 600;
-      letter-spacing: 0.1em;
+    /* Research card (purple tint) */
+    .bcard.res {
+      background: #0e0b1a;
+      border-color: rgba(155,89,255,0.1);
     }
+    .bcard.res:hover { border-color: rgba(155,89,255,0.32); }
+    .bcard.res::after {
+      background: radial-gradient(ellipse at 20% 20%, rgba(155,89,255,0.1), transparent 65%);
+    }
+    .bcard.res .bcard-arrow:hover,
+    .bcard.res:hover .bcard-arrow { border-color: var(--accent2); background: rgba(155,89,255,0.1); }
+    .bcard.res:hover .bcard-name { color: var(--accent2); }
 
-    .project-info { display: flex; flex-direction: column; gap: 6px; }
-
-    .project-name {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+    /* Stat items in research card */
+    .res-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: auto;
+    }
+    .res-stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .res-stat-n {
+      font-family: var(--fd);
+      font-size: 1.5rem;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      color: var(--accent2);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .res-stat-l {
+      font-family: var(--fm);
+      font-size: 0.58rem;
+      color: var(--muted2);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .bcard-num {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      color: var(--muted);
+      letter-spacing: 0.22em;
+    }
+    .bcard-name {
+      font-family: var(--fd);
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
       transition: color 0.2s;
     }
+    .bcard.feat .bcard-name { font-size: 1.85rem; letter-spacing: -0.04em; }
+    .bcard:hover .bcard-name { color: var(--accent); }
+    .bcard.res:hover .bcard-name { color: var(--accent2); }
 
-    .project-row:hover .project-name { color: var(--accent); }
-
-    .project-meta {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .bcard-desc {
+      font-size: 0.8rem;
+      color: var(--muted2);
+      line-height: 1.65;
+      display: none;
     }
+    .bcard.feat .bcard-desc { display: block; }
 
-    .p-tag {
-      font-size: 0.65rem;
-      padding: 3px 10px;
+    /* Terminal preview inside featured card */
+    .term-preview {
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(0,229,255,0.13);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: var(--fm);
+      font-size: 0.68rem;
+      line-height: 1.9;
+      flex: 1;
+      overflow: hidden;
+    }
+    .t-ps { color: var(--muted2); }
+    .t-cmd { color: var(--accent); }
+    .t-out { color: rgba(0,229,255,0.5); }
+    .t-cur {
+      display: inline-block;
+      width: 7px; height: 12px;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink-c 1s step-end infinite;
+    }
+    @keyframes blink-c { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    .bcard-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+    .bcard-tag {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      padding: 4px 10px;
       border-radius: 4px;
       border: 1px solid var(--border);
       color: var(--muted2);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
+    .bcard.feat .bcard-tag { border-color: rgba(0,229,255,0.18); color: rgba(0,229,255,0.65); }
+    .bcard.res .bcard-tag  { border-color: rgba(155,89,255,0.2); color: rgba(155,89,255,0.7); }
 
-    .project-arrow {
-      font-size: 1.4rem;
-      color: var(--muted);
-      transition: all 0.3s ease;
+    /* Arrow badge */
+    .bcard-arrow {
+      position: absolute;
+      top: 26px; right: 26px;
+      width: 30px; height: 30px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
       flex-shrink: 0;
     }
+    .bcard:hover .bcard-arrow { border-color: var(--accent); background: rgba(0,229,255,0.08); transform: rotate(-45deg); }
 
-    .project-row:hover .project-arrow {
-      color: var(--accent);
-      transform: rotate(-45deg) scale(1.2);
+    /* ── Stack ──────────────────────────────────────────── */
+    #stack {
+      padding: 110px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
-    /* ── Skills ───────────────────────────────── */
-    #skills {
-      padding: 120px 0;
-      background: #111;
-    }
-
-    .skills-layout {
+    .stack-layout {
       display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 80px;
+      grid-template-columns: 240px 1fr;
+      gap: 90px;
       align-items: start;
     }
-
-    .skills-left h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      font-weight: 800;
+    .stack-left h2 {
+      font-family: var(--fd);
+      font-size: clamp(1.8rem, 3.2vw, 2.9rem);
+      font-weight: 700;
       letter-spacing: -0.04em;
       text-transform: uppercase;
       line-height: 1;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
+    .stack-left h2 em { font-style: normal; color: var(--accent); }
+    .stack-left p { font-size: 0.82rem; color: var(--muted2); line-height: 1.8; }
 
-    .skills-left h2 em {
-      font-style: normal;
-      color: var(--accent);
+    .stack-rows { display: flex; flex-direction: column; }
+    .stack-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      align-items: start;
     }
-
-    .skills-left p {
-      font-size: 0.875rem;
-      color: var(--muted2);
-      line-height: 1.75;
-    }
-
-    .skills-right { display: flex; flex-direction: column; gap: 36px; }
-
-    .skill-row { display: flex; flex-direction: column; gap: 14px; }
-
-    .skill-row-label {
-      font-size: 0.65rem;
+    .stack-row:first-child { border-top: 1px solid var(--border); }
+    .stack-cat {
+      font-family: var(--fm);
+      font-size: 0.6rem;
       color: var(--muted);
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      font-weight: 600;
+      padding-top: 5px;
     }
-
-    .skill-row-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-
-    .s-pill {
-      font-size: 0.8rem;
-      font-weight: 500;
-      padding: 8px 18px;
-      border-radius: 100px;
+    .stack-pills { display: flex; flex-wrap: wrap; gap: 7px; }
+    .spill {
+      font-family: var(--fm);
+      font-size: 0.7rem;
+      padding: 6px 14px;
+      border-radius: 4px;
       border: 1px solid var(--border);
-      color: var(--text);
-      transition: all 0.2s ease;
+      color: var(--muted2);
+      letter-spacing: 0.04em;
+      transition: all 0.22s;
       cursor: default;
     }
-
-    .s-pill:hover {
-      border-color: var(--accent);
+    .spill:hover {
+      border-color: rgba(0,229,255,0.32);
       color: var(--accent);
-      background: rgba(200,255,0,0.05);
-      transform: translateY(-2px);
+      background: rgba(0,229,255,0.05);
+      transform: translateY(-1px);
     }
 
-    /* ── Research ─────────────────────────────── */
-    #research { padding: 120px 0; }
+    /* ── Research ───────────────────────────────────────── */
+    #research { padding: 110px 0; }
 
     .research-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 64px;
+      gap: 80px;
       align-items: center;
     }
-
     .research-left h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2.2rem, 4vw, 3.5rem);
-      font-weight: 800;
+      font-family: var(--fd);
+      font-size: clamp(2rem, 3.8vw, 3.2rem);
+      font-weight: 700;
       letter-spacing: -0.04em;
       text-transform: uppercase;
       line-height: 1;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
-
     .research-left h2 span {
       display: block;
-      -webkit-text-stroke: 1px var(--text);
       color: transparent;
+      -webkit-text-stroke: 1px rgba(240,237,232,0.35);
     }
-
-    .research-left p {
-      font-size: 0.9rem;
+    .research-left > p {
+      font-size: 0.86rem;
       color: var(--muted2);
-      line-height: 1.75;
-      margin-bottom: 32px;
+      line-height: 1.8;
+      margin-bottom: 28px;
     }
 
-    .research-right {
+    /* Research domain tags */
+    .domains { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 36px; }
+    .dtag {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      padding: 5px 11px;
+      border-radius: 4px;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.14);
+      color: rgba(0,229,255,0.65);
+      letter-spacing: 0.07em;
+    }
+
+    /* Stats grid */
+    .r-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 2px;
     }
-
     .r-stat {
-      background: #161616;
-      padding: 36px 28px;
+      background: var(--card);
+      padding: 38px 30px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
       transition: background 0.2s;
     }
-
-    .r-stat:hover { background: #1c1c1c; }
-
-    .r-stat:first-child { border-radius: 16px 0 0 0; }
-    .r-stat:nth-child(2) { border-radius: 0 16px 0 0; }
-    .r-stat:nth-child(3) { border-radius: 0 0 0 16px; }
-    .r-stat:last-child   { border-radius: 0 0 16px 0; }
-
+    .r-stat::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px; width: 0;
+      background: var(--accent);
+      transition: width 0.45s ease;
+    }
+    .r-stat:hover { background: var(--card2); }
+    .r-stat:hover::after { width: 100%; }
+    .r-stat:first-child  { border-radius: 12px 0 0 0; }
+    .r-stat:nth-child(2) { border-radius: 0 12px 0 0; }
+    .r-stat:nth-child(3) { border-radius: 0 0 0 12px; }
+    .r-stat:last-child   { border-radius: 0 0 12px 0; }
     .r-num {
-      font-family: 'Syne', sans-serif;
+      font-family: var(--fd);
       font-size: 3rem;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: -0.04em;
       color: var(--accent);
       line-height: 1;
     }
-
-    .r-label {
-      font-size: 0.72rem;
+    .r-lbl {
+      font-family: var(--fm);
+      font-size: 0.62rem;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.16em;
     }
 
-    /* ── Contact ──────────────────────────────── */
-    #contact {
-      padding: 120px 0 80px;
-      text-align: center;
-    }
+    /* ── Contact ────────────────────────────────────────── */
+    #contact { padding: 140px 0 100px; text-align: center; }
 
+    .contact-kicker {
+      font-family: var(--fm);
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+      display: block;
+    }
     .contact-big {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(3rem, 8vw, 8rem);
+      font-family: var(--fd);
+      font-weight: 700;
+      font-size: clamp(3rem, 8.5vw, 8.5rem);
       letter-spacing: -0.05em;
       text-transform: uppercase;
-      line-height: 0.9;
-      margin-bottom: 48px;
+      line-height: 0.88;
+      margin-bottom: 64px;
     }
-
-    .contact-big em {
-      font-style: normal;
-      -webkit-text-stroke: 1.5px var(--text);
-      color: transparent;
-    }
-
-    .contact-big .accent-line { color: var(--accent); }
+    .contact-big em { font-style: normal; color: transparent; -webkit-text-stroke: 1.5px rgba(240,237,232,0.35); }
+    .contact-big .ca { color: var(--accent); }
 
     .contact-links {
       display: flex;
       justify-content: center;
-      gap: 14px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 80px;
     }
-
     .c-link {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 24px;
-      border-radius: 100px;
+      padding: 11px 22px;
+      border-radius: 6px;
       border: 1px solid var(--border);
       color: var(--muted2);
       text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 500;
-      letter-spacing: 0.05em;
-      transition: all 0.2s ease;
+      font-family: var(--fm);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      transition: all 0.24s;
     }
-
     .c-link:hover {
-      border-color: var(--accent);
+      border-color: rgba(0,229,255,0.32);
       color: var(--accent);
-      background: rgba(200,255,0,0.05);
+      background: rgba(0,229,255,0.05);
+      transform: translateY(-2px);
     }
 
-    /* ── Footer ───────────────────────────────── */
+    /* ── Footer ─────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 28px 48px;
+      padding: 24px 52px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;
-      z-index: 2;
+      position: relative; z-index: 2;
     }
-
     footer span {
-      font-size: 0.72rem;
+      font-family: var(--fm);
+      font-size: 0.62rem;
       color: var(--muted);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
     }
 
-    /* ── Reveal ───────────────────────────────── */
+    /* ── Reveal animations ──────────────────────────────── */
     .reveal {
       opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
+      transform: translateY(28px);
+      transition: opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.on { opacity: 1; transform: none; }
+
+    .reveal-x {
+      opacity: 0;
+      transform: translateX(-28px);
+      transition: opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal-x.on { opacity: 1; transform: none; }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .bento { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .bcard.feat { grid-column: 1 / 3; grid-row: auto; min-height: 420px; }
+      .stack-layout { grid-template-columns: 1fr; gap: 44px; }
+      .research-layout { grid-template-columns: 1fr; gap: 52px; }
     }
 
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    /* ── Responsive ───────────────────────────── */
-    @media (max-width: 900px) {
-      .hero { padding: 0 24px 48px; }
-      .hero-name { font-size: clamp(52px, 12vw, 96px); }
-      .hero-bg-num { display: none; }
-      .wrapper { padding: 0 24px; }
-      nav { padding: 20px 24px; }
-      .nav-links { gap: 20px; }
+    @media (max-width: 800px) {
+      nav { padding: 22px 28px; }
+      .nav-links { gap: 22px; }
       .nav-links a:nth-child(n+3) { display: none; }
-      .skills-layout { grid-template-columns: 1fr; gap: 48px; }
-      .research-layout { grid-template-columns: 1fr; }
-      .project-row { grid-template-columns: 40px 1fr auto; gap: 16px; }
-      .contact-big { font-size: clamp(2.5rem, 10vw, 5rem); }
-      footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+      .hero { padding: 0 28px 52px; }
+      .wrap { padding: 0 28px; }
+      .bento { grid-template-columns: 1fr; }
+      .bcard.feat { grid-column: 1; }
+      .hero-bottom { flex-direction: column; align-items: flex-start; }
+      .proj-header { flex-direction: column; }
+      .proj-sub { text-align: left; max-width: 100%; }
+      .stack-row { grid-template-columns: 120px 1fr; }
+      footer { padding: 20px 28px; flex-direction: column; gap: 10px; text-align: center; }
     }
 
-    @media (max-width: 600px) {
-      .hero-bottom { flex-direction: column; align-items: flex-start; }
-      .projects-header { flex-direction: column; }
-      .projects-sub { text-align: left; }
+    @media (max-width: 560px) {
       body { cursor: auto; }
-      .cursor, .cursor-ring { display: none; }
+      .cursor-dot, .cursor-ring { display: none; }
+      .hero-name { font-size: clamp(56px, 14vw, 88px); }
+      .r-stats { grid-template-columns: 1fr 1fr; }
+      .hero-ctas { flex-wrap: wrap; }
     }
   </style>
 </head>
 <body>
 
+<!-- Atmospheric orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- Neural network canvas -->
+<canvas id="neural-canvas"></canvas>
+
 <!-- Custom cursor -->
-<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursor-dot"></div>
 <div class="cursor-ring" id="cursor-ring"></div>
 
-<!-- Nav -->
+<!-- ── Nav ──────────────────────────────────────────────── -->
 <nav>
-  <a class="nav-logo" href="#">SRM</a>
+  <a class="nav-logo" href="#">SRM_</a>
   <div class="nav-links">
     <a href="#projects">Work</a>
-    <a href="#skills">Stack</a>
+    <a href="#stack">Stack</a>
     <a href="#research">Research</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- ── Hero ─────────────────────────────────────────────── -->
 <section class="hero">
-  <div class="hero-bg-num">AI</div>
 
   <div class="hero-top">
-    <div class="hero-tag">MS Data Science · ASU</div>
-    <div class="hero-status">
+    <div class="hero-sys">
+      <span class="sys-edu">MS Data Science &middot; Arizona State University</span>
+      <span class="sys-proc" id="proc-txt">Optimizing policy gradient...</span>
+    </div>
+    <div class="hero-badge">
       <span class="status-dot"></span>
       Open to Opportunities
     </div>
   </div>
 
-  <div class="hero-main">
+  <div class="hero-name-wrap">
     <h1 class="hero-name">
-      Shubbh<br/>
-      <span class="line-2">Rajesh <span class="accent-word">Mewada</span></span>
+      <span class="n-fill"  id="sc1">SHUBBH</span>
+      <span class="n-stroke" id="sc2">RAJESH</span>
+      <span class="n-accent" id="sc3">MEWADA</span>
     </h1>
+  </div>
 
-    <div class="hero-bottom">
-      <p class="hero-desc">
-        I build <strong>intelligent systems</strong> — RL trading agents, offline LLM pipelines,
-        vision models, big data ETL. <strong>8 published papers.</strong> 105 citations.
-        Obsessed with making AI work in the real world.
-      </p>
-      <div class="hero-ctas">
-        <a href="#projects" class="btn-fill">
-          View Work
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <a href="mailto:smewada@asu.edu" class="btn-outline">Hire Me</a>
-      </div>
+  <div class="hero-bottom">
+    <p class="hero-desc">
+      Building <strong>intelligent systems</strong> — RL trading agents,
+      offline LLM pipelines, vision models, big data ETL.
+      <strong>8 published papers.</strong> 105 citations.
+      Obsessed with making AI work in the real world.
+    </p>
+    <div class="hero-ctas">
+      <a href="#projects" class="btn-primary">
+        View Work
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="mailto:smewada@asu.edu" class="btn-ghost">Hire Me</a>
     </div>
   </div>
 
-  <div class="scroll-line">
-    <div class="scroll-line-bar"></div>
+  <div class="scroll-hint">
+    <span class="scroll-lbl">Scroll</span>
+    <div class="scroll-bar"></div>
   </div>
 </section>
 
-<!-- Stats ticker -->
-<div class="stats-ticker">
-  <div class="ticker-track" id="ticker">
-    <div class="ticker-item"><strong>8</strong> Publications <span class="ticker-sep"></span></div>
-    <div class="ticker-item"><strong>105</strong> Citations <span class="ticker-sep"></span></div>
-    <div class="ticker-item"><strong>h-index 4</strong> <span class="ticker-sep"></span></div>
-    <div class="ticker-item">PyTorch <span class="ticker-sep"></span></div>
+<!-- ── Ticker ────────────────────────────────────────────── -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item"><b>8</b> Publications <span class="ticker-sep"></span></div>
+    <div class="ticker-item"><b>105</b> Citations <span class="ticker-sep"></span></div>
+    <div class="ticker-item"><b>h-index 4</b> <span class="ticker-sep"></span></div>
     <div class="ticker-item">Reinforcement Learning <span class="ticker-sep"></span></div>
     <div class="ticker-item">Computer Vision <span class="ticker-sep"></span></div>
-    <div class="ticker-item">NLP <span class="ticker-sep"></span></div>
-    <div class="ticker-item">RAG Pipelines <span class="ticker-sep"></span></div>
-    <div class="ticker-item">PySpark <span class="ticker-sep"></span></div>
-    <div class="ticker-item">CUDA / RAPIDS <span class="ticker-sep"></span></div>
     <div class="ticker-item">LLM Engineering <span class="ticker-sep"></span></div>
-    <div class="ticker-item">IEEE Conference Papers <span class="ticker-sep"></span></div>
+    <div class="ticker-item">RAG Pipelines <span class="ticker-sep"></span></div>
+    <div class="ticker-item">PySpark 4.0 <span class="ticker-sep"></span></div>
+    <div class="ticker-item">CUDA &middot; RAPIDS <span class="ticker-sep"></span></div>
     <div class="ticker-item">ONNX Runtime <span class="ticker-sep"></span></div>
-    <div class="ticker-item">Batcave Terminal <span class="ticker-sep"></span></div>
+    <div class="ticker-item">IEEE Papers <span class="ticker-sep"></span></div>
+    <div class="ticker-item">PyTorch <span class="ticker-sep"></span></div>
     <!-- duplicate for seamless loop -->
-    <div class="ticker-item"><strong>8</strong> Publications <span class="ticker-sep"></span></div>
-    <div class="ticker-item"><strong>105</strong> Citations <span class="ticker-sep"></span></div>
-    <div class="ticker-item"><strong>h-index 4</strong> <span class="ticker-sep"></span></div>
-    <div class="ticker-item">PyTorch <span class="ticker-sep"></span></div>
+    <div class="ticker-item"><b>8</b> Publications <span class="ticker-sep"></span></div>
+    <div class="ticker-item"><b>105</b> Citations <span class="ticker-sep"></span></div>
+    <div class="ticker-item"><b>h-index 4</b> <span class="ticker-sep"></span></div>
     <div class="ticker-item">Reinforcement Learning <span class="ticker-sep"></span></div>
     <div class="ticker-item">Computer Vision <span class="ticker-sep"></span></div>
-    <div class="ticker-item">NLP <span class="ticker-sep"></span></div>
-    <div class="ticker-item">RAG Pipelines <span class="ticker-sep"></span></div>
-    <div class="ticker-item">PySpark <span class="ticker-sep"></span></div>
-    <div class="ticker-item">CUDA / RAPIDS <span class="ticker-sep"></span></div>
     <div class="ticker-item">LLM Engineering <span class="ticker-sep"></span></div>
-    <div class="ticker-item">IEEE Conference Papers <span class="ticker-sep"></span></div>
+    <div class="ticker-item">RAG Pipelines <span class="ticker-sep"></span></div>
+    <div class="ticker-item">PySpark 4.0 <span class="ticker-sep"></span></div>
+    <div class="ticker-item">CUDA &middot; RAPIDS <span class="ticker-sep"></span></div>
     <div class="ticker-item">ONNX Runtime <span class="ticker-sep"></span></div>
-    <div class="ticker-item">Batcave Terminal <span class="ticker-sep"></span></div>
+    <div class="ticker-item">IEEE Papers <span class="ticker-sep"></span></div>
+    <div class="ticker-item">PyTorch <span class="ticker-sep"></span></div>
   </div>
 </div>
 
-<!-- Projects -->
+<!-- ── Projects ──────────────────────────────────────────── -->
 <section id="projects">
-  <div class="wrapper">
+  <div class="wrap">
     <div class="s-label reveal">Selected Work</div>
-    <div class="projects-header reveal">
-      <h2 class="projects-title">Things I've<br/><em>Built</em></h2>
-      <p class="projects-sub">End-to-end projects spanning RL, LLMs, big data engineering, and computer vision.</p>
+
+    <div class="proj-header">
+      <h2 class="proj-title reveal">Things I've<br/><em>Built</em></h2>
+      <p class="proj-sub reveal">End-to-end projects spanning RL, LLMs, big data engineering, and computer vision.</p>
     </div>
 
-    <div class="project-list">
+    <div class="bento">
 
-      <a class="project-row reveal" href="https://batcave-terminal.vercel.app" target="_blank">
-        <span class="project-num">01</span>
-        <div class="project-info">
-          <span class="project-name">Batcave Terminal</span>
-          <div class="project-meta">
-            <span class="p-tag">RecurrentPPO</span>
-            <span class="p-tag">3-Expert LSTM Ensemble</span>
-            <span class="p-tag">ONNX Runtime</span>
-            <span class="p-tag">Next.js</span>
-          </div>
+      <!-- 01 Batcave Terminal — Featured 2×2 -->
+      <a class="bcard feat reveal" href="https://batcave-terminal.vercel.app" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="project-arrow">↗</span>
+        <span class="bcard-num">01 &mdash; FEATURED</span>
+        <span class="bcard-name">Batcave Terminal</span>
+        <p class="bcard-desc">Real-time RL trading terminal powered by a 3-Expert LSTM ensemble with RecurrentPPO. ONNX-optimized inference deployed on Next.js for sub-millisecond prediction latency.</p>
+        <div class="term-preview">
+          <div><span class="t-ps">$</span> <span class="t-cmd">run-inference --model lstm-ensemble.onnx</span></div>
+          <div class="t-out">Loading 3-expert LSTM ensemble...</div>
+          <div class="t-out">ONNX Runtime initialized [CUDA:0]</div>
+          <div class="t-out">RecurrentPPO policy loaded &mdash; ready</div>
+          <div><span class="t-ps">&gt;</span> <span class="t-cmd">predict --live --stream</span> <span class="t-cur"></span></div>
+        </div>
+        <div class="bcard-tags">
+          <span class="bcard-tag">RecurrentPPO</span>
+          <span class="bcard-tag">3-Expert LSTM</span>
+          <span class="bcard-tag">ONNX Runtime</span>
+          <span class="bcard-tag">Next.js</span>
+        </div>
       </a>
 
-      <a class="project-row reveal" href="https://shubbhrm.github.io/Finance-RL/" target="_blank">
-        <span class="project-num">02</span>
-        <div class="project-info">
-          <span class="project-name">Finance-RL Trading Agent</span>
-          <div class="project-meta">
-            <span class="p-tag">PyTorch</span>
-            <span class="p-tag">DQN / PPO</span>
-            <span class="p-tag">Stable-Baselines3</span>
-            <span class="p-tag">OpenAI Gym</span>
-          </div>
+      <!-- 03 Offline RAG Code Tutor — col 3, row 1 -->
+      <a class="bcard reveal" href="https://shubbhrm.github.io/LLM_Hackathon/" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="project-arrow">↗</span>
+        <span class="bcard-num">03</span>
+        <span class="bcard-name">Offline RAG Code Tutor</span>
+        <div class="bcard-tags">
+          <span class="bcard-tag">Qwen2.5-Coder-14B</span>
+          <span class="bcard-tag">ChromaDB</span>
+          <span class="bcard-tag">RAPIDS / CUDA</span>
+          <span class="bcard-tag">Streamlit</span>
+        </div>
       </a>
 
-      <a class="project-row reveal" href="https://shubbhrm.github.io/LLM_Hackathon/" target="_blank">
-        <span class="project-num">03</span>
-        <div class="project-info">
-          <span class="project-name">Offline RAG Code Tutor</span>
-          <div class="project-meta">
-            <span class="p-tag">Qwen2.5-Coder-14B</span>
-            <span class="p-tag">ChromaDB</span>
-            <span class="p-tag">RAPIDS / CUDA</span>
-            <span class="p-tag">Streamlit</span>
-          </div>
+      <!-- 02 Finance-RL Trading Agent — col 3, row 2 -->
+      <a class="bcard reveal" href="https://shubbhrm.github.io/Finance-RL/" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="project-arrow">↗</span>
+        <span class="bcard-num">02</span>
+        <span class="bcard-name">Finance-RL Trading Agent</span>
+        <div class="bcard-tags">
+          <span class="bcard-tag">DQN / PPO</span>
+          <span class="bcard-tag">PyTorch</span>
+          <span class="bcard-tag">Stable-Baselines3</span>
+          <span class="bcard-tag">OpenAI Gym</span>
+        </div>
       </a>
 
-      <a class="project-row reveal" href="https://shubbhrm.github.io/Tesla-Speed-Optimizer/" target="_blank">
-        <span class="project-num">04</span>
-        <div class="project-info">
-          <span class="project-name">Tesla Speed Optimizer</span>
-          <div class="project-meta">
-            <span class="p-tag">PySpark 4.0</span>
-            <span class="p-tag">Spark SQL</span>
-            <span class="p-tag">Parquet</span>
-            <span class="p-tag">Power BI</span>
-          </div>
+      <!-- 04 Tesla Speed Optimizer — bottom row col 1 -->
+      <a class="bcard reveal" href="https://shubbhrm.github.io/Tesla-Speed-Optimizer/" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="project-arrow">↗</span>
+        <span class="bcard-num">04</span>
+        <span class="bcard-name">Tesla Speed Optimizer</span>
+        <div class="bcard-tags">
+          <span class="bcard-tag">PySpark 4.0</span>
+          <span class="bcard-tag">Spark SQL</span>
+          <span class="bcard-tag">Parquet</span>
+          <span class="bcard-tag">Power BI</span>
+        </div>
       </a>
 
-      <a class="project-row reveal" href="https://github.com/ShubbhRM/Behavioral-Dynamics-Prediction" target="_blank">
-        <span class="project-num">05</span>
-        <div class="project-info">
-          <span class="project-name">Behavioral Dynamics Prediction</span>
-          <div class="project-meta">
-            <span class="p-tag">PyTorch</span>
-            <span class="p-tag">GRU + Attention</span>
-            <span class="p-tag">SBERT</span>
-            <span class="p-tag">Neural Point Process</span>
-          </div>
+      <!-- 05 Behavioral Dynamics — bottom row col 2 -->
+      <a class="bcard reveal" href="https://github.com/ShubbhRM/Behavioral-Dynamics-Prediction" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <span class="project-arrow">↗</span>
+        <span class="bcard-num">05</span>
+        <span class="bcard-name">Behavioral Dynamics Prediction</span>
+        <div class="bcard-tags">
+          <span class="bcard-tag">GRU + Attention</span>
+          <span class="bcard-tag">SBERT</span>
+          <span class="bcard-tag">Neural Point Process</span>
+          <span class="bcard-tag">PyTorch</span>
+        </div>
       </a>
 
-      <a class="project-row reveal" href="https://shubbhrm.github.io/research/" target="_blank">
-        <span class="project-num">06</span>
-        <div class="project-info">
-          <span class="project-name">Research Portfolio — 8 Papers</span>
-          <div class="project-meta">
-            <span class="p-tag">Computer Vision</span>
-            <span class="p-tag">NLP</span>
-            <span class="p-tag">Transfer Learning</span>
-            <span class="p-tag">IEEE</span>
+      <!-- 06 Research Portfolio — bottom row col 3, purple tint -->
+      <a class="bcard res reveal" href="https://shubbhrm.github.io/research/" target="_blank" rel="noopener">
+        <div class="bcard-arrow">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <span class="bcard-num">06</span>
+        <span class="bcard-name">Research Portfolio</span>
+        <div class="res-stats">
+          <div class="res-stat-item">
+            <span class="res-stat-n">8</span>
+            <span class="res-stat-l">IEEE Papers</span>
+          </div>
+          <div class="res-stat-item">
+            <span class="res-stat-n">105</span>
+            <span class="res-stat-l">Citations</span>
+          </div>
+          <div class="res-stat-item">
+            <span class="res-stat-n">h4</span>
+            <span class="res-stat-l">h-index</span>
           </div>
         </div>
-        <span class="project-arrow">↗</span>
+        <div class="bcard-tags">
+          <span class="bcard-tag">CV</span>
+          <span class="bcard-tag">NLP</span>
+          <span class="bcard-tag">Medical AI</span>
+          <span class="bcard-tag">IEEE</span>
+        </div>
       </a>
 
     </div>
   </div>
 </section>
 
-<!-- Skills -->
-<section id="skills">
-  <div class="wrapper">
+<!-- ── Stack ─────────────────────────────────────────────── -->
+<section id="stack">
+  <div class="wrap">
     <div class="s-label reveal">Tech Stack</div>
-    <div class="skills-layout">
-      <div class="skills-left reveal">
+    <div class="stack-layout">
+
+      <div class="stack-left reveal-x">
         <h2>What I<br/>Work<br/><em>With</em></h2>
-        <p>Every tool here has been used in production or peer-reviewed research. Built from real projects, not tutorials.</p>
+        <p>Every tool has been used in production or peer-reviewed research. Built from real projects, not tutorials.</p>
       </div>
-      <div class="skills-right">
 
-        <div class="skill-row reveal">
-          <span class="skill-row-label">Languages</span>
-          <div class="skill-row-pills">
-            <span class="s-pill">Python</span>
-            <span class="s-pill">CUDA</span>
-            <span class="s-pill">C++</span>
-            <span class="s-pill">Cython</span>
-            <span class="s-pill">SQL</span>
+      <div class="stack-rows reveal">
+        <div class="stack-row">
+          <span class="stack-cat">Languages</span>
+          <div class="stack-pills">
+            <span class="spill">Python</span>
+            <span class="spill">CUDA</span>
+            <span class="spill">C++</span>
+            <span class="spill">Cython</span>
+            <span class="spill">SQL</span>
           </div>
         </div>
-
-        <div class="skill-row reveal">
-          <span class="skill-row-label">ML / DL Frameworks</span>
-          <div class="skill-row-pills">
-            <span class="s-pill">PyTorch</span>
-            <span class="s-pill">TensorFlow</span>
-            <span class="s-pill">Stable-Baselines3</span>
-            <span class="s-pill">Hugging Face</span>
-            <span class="s-pill">OpenAI Gym</span>
-            <span class="s-pill">Scikit-learn</span>
-            <span class="s-pill">YOLOv5</span>
-            <span class="s-pill">ONNX Runtime</span>
+        <div class="stack-row">
+          <span class="stack-cat">ML / DL</span>
+          <div class="stack-pills">
+            <span class="spill">PyTorch</span>
+            <span class="spill">TensorFlow</span>
+            <span class="spill">Stable-Baselines3</span>
+            <span class="spill">Hugging Face</span>
+            <span class="spill">OpenAI Gym</span>
+            <span class="spill">Scikit-learn</span>
+            <span class="spill">YOLOv5</span>
+            <span class="spill">ONNX Runtime</span>
           </div>
         </div>
-
-        <div class="skill-row reveal">
-          <span class="skill-row-label">LLM / NLP / RAG</span>
-          <div class="skill-row-pills">
-            <span class="s-pill">Qwen2.5-Coder-14B</span>
-            <span class="s-pill">ChromaDB</span>
-            <span class="s-pill">SentenceTransformers</span>
-            <span class="s-pill">SBERT</span>
-            <span class="s-pill">LM Studio</span>
-            <span class="s-pill">RAG Pipelines</span>
+        <div class="stack-row">
+          <span class="stack-cat">LLM / RAG</span>
+          <div class="stack-pills">
+            <span class="spill">Qwen2.5-Coder-14B</span>
+            <span class="spill">ChromaDB</span>
+            <span class="spill">SentenceTransformers</span>
+            <span class="spill">SBERT</span>
+            <span class="spill">LM Studio</span>
+            <span class="spill">RAG Pipelines</span>
           </div>
         </div>
-
-        <div class="skill-row reveal">
-          <span class="skill-row-label">Data Engineering & GPU</span>
-          <div class="skill-row-pills">
-            <span class="s-pill">PySpark 4.0</span>
-            <span class="s-pill">RAPIDS cuDF</span>
-            <span class="s-pill">CuPy</span>
-            <span class="s-pill">Pandas</span>
-            <span class="s-pill">NumPy</span>
-            <span class="s-pill">Parquet</span>
-            <span class="s-pill">Power BI</span>
+        <div class="stack-row">
+          <span class="stack-cat">Data + GPU</span>
+          <div class="stack-pills">
+            <span class="spill">PySpark 4.0</span>
+            <span class="spill">RAPIDS cuDF</span>
+            <span class="spill">CuPy</span>
+            <span class="spill">Pandas</span>
+            <span class="spill">NumPy</span>
+            <span class="spill">Parquet</span>
+            <span class="spill">Power BI</span>
           </div>
         </div>
-
-        <div class="skill-row reveal">
-          <span class="skill-row-label">Tools & Deployment</span>
-          <div class="skill-row-pills">
-            <span class="s-pill">Next.js</span>
-            <span class="s-pill">Vercel</span>
-            <span class="s-pill">Streamlit</span>
-            <span class="s-pill">OpenCV</span>
-            <span class="s-pill">Git / GitHub</span>
-            <span class="s-pill">Jupyter</span>
-            <span class="s-pill">Matplotlib</span>
-            <span class="s-pill">Seaborn</span>
+        <div class="stack-row">
+          <span class="stack-cat">Deploy</span>
+          <div class="stack-pills">
+            <span class="spill">Next.js</span>
+            <span class="spill">Vercel</span>
+            <span class="spill">Streamlit</span>
+            <span class="spill">OpenCV</span>
+            <span class="spill">Git / GitHub</span>
+            <span class="spill">Jupyter</span>
+            <span class="spill">Matplotlib</span>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- Research -->
+<!-- ── Research ───────────────────────────────────────────── -->
 <section id="research">
-  <div class="wrapper">
+  <div class="wrap">
     <div class="s-label reveal">Publications</div>
     <div class="research-layout">
-      <div class="research-left reveal">
+
+      <div class="research-left reveal-x">
         <h2>Research<br/><span>Impact</span></h2>
         <p>8 peer-reviewed IEEE conference papers published in 2023 — spanning Computer Vision, NLP, Medical AI, Audio ML, and Financial Forecasting.</p>
-        <a href="https://shubbhrm.github.io/research/" target="_blank" class="btn-fill" style="width:fit-content;">
+        <div class="domains">
+          <span class="dtag">Computer Vision</span>
+          <span class="dtag">NLP</span>
+          <span class="dtag">Medical AI</span>
+          <span class="dtag">Audio ML</span>
+          <span class="dtag">Financial Forecasting</span>
+          <span class="dtag">Transfer Learning</span>
+        </div>
+        <a href="https://shubbhrm.github.io/research/" target="_blank" rel="noopener" class="btn-primary" style="width:fit-content;display:inline-flex;">
           View All Papers
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
-      <div class="research-right reveal">
+
+      <div class="r-stats reveal">
         <div class="r-stat">
-          <span class="r-num">8</span>
-          <span class="r-label">Papers</span>
+          <span class="r-num count-up" data-target="8">0</span>
+          <span class="r-lbl">Papers</span>
         </div>
         <div class="r-stat">
-          <span class="r-num">105</span>
-          <span class="r-label">Citations</span>
+          <span class="r-num count-up" data-target="105">0</span>
+          <span class="r-lbl">Citations</span>
         </div>
         <div class="r-stat">
-          <span class="r-num">4</span>
-          <span class="r-label">h-index</span>
+          <span class="r-num count-up" data-target="4">0</span>
+          <span class="r-lbl">h-index</span>
         </div>
         <div class="r-stat">
-          <span class="r-num">4</span>
-          <span class="r-label">i10-index</span>
+          <span class="r-num count-up" data-target="4">0</span>
+          <span class="r-lbl">i10-index</span>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- Contact -->
+<!-- ── Contact ────────────────────────────────────────────── -->
 <section id="contact">
-  <div class="wrapper">
+  <div class="wrap">
+    <span class="contact-kicker reveal">Let&rsquo;s build something real</span>
     <h2 class="contact-big reveal">
-      Let's<br/>
+      Let&rsquo;s<br/>
       <em>Work</em><br/>
-      <span class="accent-line">Together</span>
+      <span class="ca">Together</span>
     </h2>
     <div class="contact-links reveal">
       <a class="c-link" href="mailto:smewada@asu.edu">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4l6 5 6-5M2 4h12v9H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         smewada@asu.edu
       </a>
-      <a class="c-link" href="https://www.linkedin.com/in/shubbhrmewada/" target="_blank">
+      <a class="c-link" href="https://www.linkedin.com/in/shubbhrmewada/" target="_blank" rel="noopener">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 2A1.5 1.5 0 102 3.5 1.5 1.5 0 003.5 2zM2 6h3v8H2zm5 0h2.9v1.1h.04A3.17 3.17 0 0112.8 6C15.1 6 16 7.5 16 9.7V14h-3v-3.8c0-1 0-2.3-1.4-2.3S10 9.1 10 10.1V14H7z"/></svg>
         LinkedIn
       </a>
-      <a class="c-link" href="https://github.com/ShubbhRM" target="_blank">
+      <a class="c-link" href="https://github.com/ShubbhRM" target="_blank" rel="noopener">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
         GitHub
       </a>
-      <a class="c-link" href="https://scholar.google.com/citations?user=0umeaPAAAAAJ&hl=en" target="_blank">
+      <a class="c-link" href="https://scholar.google.com/citations?user=0umeaPAAAAAJ&hl=en" target="_blank" rel="noopener">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Google Scholar
       </a>
@@ -1101,43 +1258,203 @@
   </div>
 </section>
 
-<!-- Footer -->
+<!-- ── Footer ─────────────────────────────────────────────── -->
 <footer>
-  <span>Shubbh Rajesh Mewada</span>
+  <span>&copy; 2025 Shubbh Rajesh Mewada</span>
   <span>Built with purpose, not templates</span>
 </footer>
 
-<!-- Scripts -->
+<!-- ── Scripts ───────────────────────────────────────────── -->
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const ring   = document.getElementById('cursor-ring');
-  let mx = 0, my = 0, rx = 0, ry = 0;
+/* ── Neural Network Canvas ───────────────────────────────── */
+(function () {
+  const canvas = document.getElementById('neural-canvas');
+  const ctx = canvas.getContext('2d');
+  const COUNT = 55;
+  const DIST  = 135;
+  let nodes = [];
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function init() {
+    nodes = Array.from({ length: COUNT }, () => ({
+      x:  Math.random() * W,
+      y:  Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.28,
+      vy: (Math.random() - 0.5) * 0.28,
+      r:  Math.random() * 1.2 + 0.5,
+    }));
+  }
+  init();
+
+  let mx = -999, my = -999;
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    nodes.forEach(n => {
+      n.x += n.vx;
+      n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < DIST) {
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(0,229,255,${(1 - d / DIST) * 0.055})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
+    }
+
+    nodes.forEach(n => {
+      const dx = n.x - mx, dy = n.y - my;
+      const md = Math.sqrt(dx * dx + dy * dy);
+      const boost = md < 110 ? (1 - md / 110) * 0.55 : 0;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r + boost * 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,229,255,${0.18 + boost})`;
+      ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Custom Cursor ───────────────────────────────────────── */
+(function () {
+  const dot  = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let cx = 0, cy = 0, rx = 0, ry = 0;
 
   document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx + 'px';
-    cursor.style.top  = my + 'px';
+    cx = e.clientX; cy = e.clientY;
+    dot.style.left = cx + 'px';
+    dot.style.top  = cy + 'px';
   });
 
-  (function animRing() {
-    rx += (mx - rx) * 0.14;
-    ry += (my - ry) * 0.14;
+  (function lerp() {
+    rx += (cx - rx) * 0.11;
+    ry += (cy - ry) * 0.11;
     ring.style.left = rx + 'px';
     ring.style.top  = ry + 'px';
-    requestAnimationFrame(animRing);
+    requestAnimationFrame(lerp);
   })();
 
-  // Scroll reveal
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('expanded'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('expanded'));
+  });
+})();
+
+/* ── Text Scramble on Hero Name ──────────────────────────── */
+(function () {
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%&';
+
+  function scramble(el, final, delay) {
+    const len = final.length;
+    let frame = 0;
+    const total = len * 5 + 18;
+    setTimeout(() => {
+      const id = setInterval(() => {
+        let out = '';
+        for (let i = 0; i < len; i++) {
+          out += i < frame / 5
+            ? final[i]
+            : CHARS[Math.floor(Math.random() * CHARS.length)];
+        }
+        el.textContent = out;
+        if (++frame > total) { el.textContent = final; clearInterval(id); }
+      }, 38);
+    }, delay);
+  }
+
+  setTimeout(() => {
+    scramble(document.getElementById('sc1'), 'SHUBBH', 0);
+    scramble(document.getElementById('sc2'), 'RAJESH', 280);
+    scramble(document.getElementById('sc3'), 'MEWADA', 560);
+  }, 350);
+})();
+
+/* ── Process Cycling Text ────────────────────────────────── */
+(function () {
+  const msgs = [
+    'Optimizing policy gradient...',
+    'Generating embeddings...',
+    'Training LSTM ensemble...',
+    'Running ONNX inference...',
+    'Indexing vector store...',
+    'Sampling from replay buffer...',
+    'Fine-tuning language model...',
+  ];
+  let i = 0;
+  const el = document.getElementById('proc-txt');
+  el.style.transition = 'opacity 0.38s ease';
+
+  setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      i = (i + 1) % msgs.length;
+      el.textContent = msgs[i];
+      el.style.opacity = '1';
+    }, 400);
+  }, 3400);
+})();
+
+/* ── Scroll Reveal ───────────────────────────────────────── */
+(function () {
   const obs = new IntersectionObserver(entries => {
-    entries.forEach((e, i) => {
+    entries.forEach((e, idx) => {
       if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        setTimeout(() => e.target.classList.add('on'), idx * 90);
         obs.unobserve(e.target);
       }
     });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  }, { threshold: 0.07 });
+
+  document.querySelectorAll('.reveal, .reveal-x').forEach(el => obs.observe(el));
+})();
+
+/* ── Counting Animation ──────────────────────────────────── */
+(function () {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el     = e.target;
+      const target = +el.dataset.target;
+      const dur    = 1600;
+      const start  = performance.now();
+
+      function tick(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(ease * target);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(tick);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.count-up').forEach(el => obs.observe(el));
+})();
 </script>
 
 </body>

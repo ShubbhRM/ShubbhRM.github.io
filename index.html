@@ -67,7 +67,7 @@
       --card2:    #151515;
       --text:     #F0EDE8;
       --muted:    #3f3f3f;
-      --muted2:   #787878;
+      --muted2:   #b2b2b2;
       --accent:   #00E5FF;
       --accent2:  #9B59FF;
       --border:   rgba(255,255,255,0.07);
@@ -77,7 +77,7 @@
       --fb:       'Inter', sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; font-size: 18px; }
 
     body {
       background: var(--bg);
@@ -165,7 +165,7 @@
     .nav-logo {
       font-family: var(--fm);
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--text);
       text-decoration: none;
       letter-spacing: 0.22em;
@@ -175,8 +175,8 @@
     .nav-links { display: flex; gap: 40px; align-items: center; position: relative; z-index: 2; }
     .nav-links a {
       font-family: var(--fm);
-      font-size: 0.81rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--muted2);
       text-decoration: none;
       letter-spacing: 0.16em;
@@ -209,16 +209,16 @@
     }
     .sys-edu {
       font-family: var(--fm);
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--muted2);
-      letter-spacing: 0.18em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
     }
     .sys-proc {
       font-family: var(--fm);
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
       color: var(--accent);
       letter-spacing: 0.06em;
       transition: opacity 0.4s ease;
@@ -229,13 +229,13 @@
       align-items: center;
       gap: 9px;
       font-family: var(--fm);
-      font-size: 0.79rem;
-      font-weight: 600;
+      font-size: 0.9rem;
+      font-weight: 700;
       color: var(--muted2);
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       border: 1px solid var(--border);
-      padding: 8px 18px;
+      padding: 10px 20px;
       border-radius: 100px;
       background: rgba(255,255,255,0.025);
       backdrop-filter: blur(8px);
@@ -287,13 +287,14 @@
     }
 
     .hero-desc {
-      font-size: 1rem;
+      font-size: 1.15rem;
       color: var(--muted2);
       line-height: 1.85;
-      max-width: 520px;
+      max-width: 560px;
       text-align: center;
     }
-    .hero-desc strong { color: var(--text); font-weight: 500; }
+    .hero-desc strong { color: var(--text); font-weight: 700; }
+    .hero-desc .kw { color: var(--accent); font-weight: 700; }
 
     .hero-ctas { display: flex; gap: 12px; align-items: center; justify-content: center; }
 
@@ -306,8 +307,8 @@
       background: var(--accent);
       color: #000;
       font-family: var(--fd);
-      font-weight: 600;
-      font-size: 0.93rem;
+      font-weight: 700;
+      font-size: 1rem;
       text-decoration: none;
       letter-spacing: 0.04em;
       transition: all 0.25s ease;
@@ -326,8 +327,8 @@
       border: 1px solid var(--border);
       color: var(--muted2);
       font-family: var(--fd);
-      font-weight: 500;
-      font-size: 0.93rem;
+      font-weight: 600;
+      font-size: 1rem;
       text-decoration: none;
       letter-spacing: 0.04em;
       transition: all 0.25s ease;
@@ -351,10 +352,10 @@
     }
     .scroll-lbl {
       font-family: var(--fm);
-      font-size: 0.65rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.28em;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted2);
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       writing-mode: vertical-lr;
     }
@@ -374,7 +375,7 @@
       position: relative; z-index: 2;
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
-      height: 50px;
+      height: 62px;
       overflow: hidden;
     }
     .ticker-track {
@@ -391,13 +392,13 @@
       gap: 14px;
       padding: 0 36px;
       font-family: var(--fm);
-      font-size: 0.79rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--muted2);
     }
-    .ticker-item b { color: var(--accent); font-weight: 700; }
+    .ticker-item b { color: var(--accent); font-weight: 700; font-size: 1rem; }
     .ticker-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
     @keyframes t-scroll {
       from { transform: translateX(0); }
@@ -418,10 +419,10 @@
       align-items: center;
       gap: 12px;
       font-family: var(--fm);
-      font-size: 0.73rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.28em;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted2);
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       margin-bottom: 52px;
     }
@@ -452,10 +453,10 @@
     }
     .proj-title em { font-style: normal; color: transparent; -webkit-text-stroke: 1px var(--text); }
     .proj-sub {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       color: var(--muted2);
       line-height: 1.7;
-      max-width: 400px;
+      max-width: 420px;
       text-align: center;
     }
 
@@ -541,36 +542,36 @@
     }
     .res-stat-l {
       font-family: var(--fm);
-      font-size: 0.71rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       color: var(--muted2);
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
     .bcard-num {
       font-family: var(--fm);
-      font-size: 0.73rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.22em;
+      color: var(--muted2);
+      letter-spacing: 0.16em;
     }
     .bcard-name {
       font-family: var(--fd);
-      font-weight: 600;
-      font-size: 1.33rem;
+      font-weight: 700;
+      font-size: 1.45rem;
       letter-spacing: -0.025em;
       line-height: 1.2;
       transition: color 0.2s;
     }
-    .bcard.feat .bcard-name { font-size: 1.98rem; letter-spacing: -0.04em; }
+    .bcard.feat .bcard-name { font-size: 2.1rem; letter-spacing: -0.04em; }
     .bcard:hover .bcard-name { color: var(--accent); }
     .bcard.res:hover .bcard-name { color: var(--accent2); }
 
     .bcard-desc {
-      font-size: 0.93rem;
+      font-size: 1.05rem;
       color: var(--muted2);
-      line-height: 1.65;
+      line-height: 1.7;
       display: none;
     }
     .bcard.feat .bcard-desc { display: block; }
@@ -582,7 +583,7 @@
       border-radius: 8px;
       padding: 14px 18px;
       font-family: var(--fm);
-      font-size: 0.81rem;
+      font-size: 0.92rem;
       line-height: 1.9;
       flex: 1;
       overflow: hidden;
@@ -602,9 +603,9 @@
     .bcard-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
     .bcard-tag {
       font-family: var(--fm);
-      font-size: 0.73rem;
-      font-weight: 600;
-      padding: 4px 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 5px 12px;
       border-radius: 4px;
       border: 1px solid var(--border);
       color: var(--muted2);
@@ -666,23 +667,23 @@
     .stack-row:first-child { border-top: 1px solid var(--border); }
     .stack-cat {
       font-family: var(--fm);
-      font-size: 0.73rem;
+      font-size: 0.88rem;
       font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.2em;
+      color: var(--muted2);
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       padding-top: 5px;
     }
     .stack-pills { display: flex; flex-wrap: wrap; gap: 7px; }
     .spill {
       font-family: var(--fm);
-      font-size: 0.83rem;
-      font-weight: 600;
-      padding: 6px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 7px 16px;
       border-radius: 4px;
       border: 1px solid var(--border);
       color: var(--muted2);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       transition: all 0.22s;
       cursor: default;
     }
@@ -717,7 +718,7 @@
       -webkit-text-stroke: 1px rgba(240,237,232,0.35);
     }
     .research-left > p {
-      font-size: 0.99rem;
+      font-size: 1.1rem;
       color: var(--muted2);
       line-height: 1.8;
       margin-bottom: 28px;
@@ -727,14 +728,14 @@
     .domains { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 36px; }
     .dtag {
       font-family: var(--fm);
-      font-size: 0.73rem;
-      font-weight: 600;
-      padding: 5px 11px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 6px 14px;
       border-radius: 4px;
-      background: rgba(0,229,255,0.06);
-      border: 1px solid rgba(0,229,255,0.14);
-      color: rgba(0,229,255,0.65);
-      letter-spacing: 0.07em;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.22);
+      color: rgba(0,229,255,0.85);
+      letter-spacing: 0.05em;
     }
 
     /* Stats grid */
@@ -777,11 +778,11 @@
     }
     .r-lbl {
       font-family: var(--fm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted2);
       text-transform: uppercase;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.12em;
     }
 
     /* ── Contact ────────────────────────────────────────── */
@@ -789,10 +790,10 @@
 
     .contact-kicker {
       font-family: var(--fm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.28em;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--muted2);
+      letter-spacing: 0.2em;
       text-transform: uppercase;
       margin-bottom: 36px;
       display: block;
@@ -825,9 +826,9 @@
       color: var(--muted2);
       text-decoration: none;
       font-family: var(--fm);
-      font-size: 0.83rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       transition: all 0.24s;
     }
     .c-link:hover {
@@ -848,10 +849,10 @@
     }
     footer span {
       font-family: var(--fm);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.14em;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted2);
+      letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
@@ -949,9 +950,9 @@
 
   <div class="hero-bottom">
     <p class="hero-desc">
-      Building <strong>intelligent systems</strong>: RL trading agents,
-      offline LLM pipelines, vision models, big data ETL.
-      <strong>8 published papers.</strong> 105 citations.
+      Building <strong>intelligent systems</strong>: <span class="kw">RL trading agents</span>,
+      <span class="kw">offline LLM pipelines</span>, <span class="kw">vision models</span>, big data ETL.
+      <span class="kw">8 published papers.</span> <span class="kw">105 citations.</span>
       Obsessed with making AI work in the real world.
     </p>
     <div class="hero-ctas">
